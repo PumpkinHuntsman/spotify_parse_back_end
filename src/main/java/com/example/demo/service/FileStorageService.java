@@ -3,6 +3,7 @@ package com.example.demo.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
@@ -40,6 +41,31 @@ public class FileStorageService {
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new RuntimeException("Could not list files", e);
+        }
+    }
+
+    /**
+     * Reads the first 20 characters of each uploaded file.
+     */
+    public List<String> getFilePreviews() {
+        try (Stream<Path> files = Files.list(fileStorageLocation)) {
+            return files.map(this::readFirst20Chars)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException("Could not read file previews", e);
+        }
+    }
+
+    /**
+     * Reads the first 20 characters of a given file.
+     */
+    private String readFirst20Chars(Path filePath) {
+        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+            char[] buffer = new char[200];
+            int bytesRead = reader.read(buffer, 0, 200);
+            return bytesRead > 0 ? new String(buffer, 0, bytesRead) : "(Empty File)";
+        } catch (IOException e) {
+            return "(Error reading file)";
         }
     }
 }

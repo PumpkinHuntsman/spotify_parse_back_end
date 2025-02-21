@@ -45,4 +45,11 @@ public class FileUploadController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .body(resource);
     }
+
+    @GetMapping("/previews")
+    public ResponseEntity<List<String>> getFilePreviews() {
+        return ResponseEntity.ok(fileStorageService.getFilePreviews());
+    }
+
+
 }
