@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.FileStorageService;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.io.File;
 
 @RestController
 @RequestMapping("/api/files")
@@ -27,5 +30,19 @@ public class FileUploadController {
     @GetMapping
     public ResponseEntity<List<String>> listFiles() {
         return ResponseEntity.ok(fileStorageService.listFiles());
+    }
+
+    @GetMapping("/download/{fileName}")
+    public ResponseEntity<FileSystemResource> downloadFile(@PathVariable String fileName) {
+        File file = new File("uploads/" + fileName);
+        FileSystemResource resource = new FileSystemResource(file);
+
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                .body(resource);
     }
 }
