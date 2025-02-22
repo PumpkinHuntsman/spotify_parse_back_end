@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.FileStorageService;
+import com.example.demo.service.SharedService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +17,18 @@ import java.io.File;
 public class FileUploadController {
 
     private final FileStorageService fileStorageService;
+    private final SharedService sharedService;
 
-    public FileUploadController(FileStorageService fileStorageService) {
+    public FileUploadController(FileStorageService fileStorageService, SharedService sharedService) {
         this.fileStorageService = fileStorageService;
+        this.sharedService = sharedService;
     }
+
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileName = fileStorageService.storeFile(file);
+        sharedService.setPublicString1("File -" + fileName);
         return ResponseEntity.ok("File uploaded successfully: " + fileName);
     }
 
