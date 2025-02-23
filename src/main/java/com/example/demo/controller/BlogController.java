@@ -17,7 +17,7 @@ public class BlogController {
 
     @GetMapping("/blog")
     public String getBlogContent() {
-        String content = "Hello World, this var is set in DemoApplication.java\n";
+        String content = "Hello World, this var is set in BlogController.java\n";
         return content + sharedService.getPublicString1();
     }
 }

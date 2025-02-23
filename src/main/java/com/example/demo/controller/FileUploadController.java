@@ -29,7 +29,16 @@ public class FileUploadController {
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileName = fileStorageService.storeFile(file);
         sharedService.setPublicString1("File -" + fileName);
-        return ResponseEntity.ok("File uploaded successfully: " + fileName);
+        try{
+            sharedService.processFileUpload(file);
+            String first_track = sharedService.getSingleTrack(0).toString();
+            return ResponseEntity.ok("File uploaded successfully: " + fileName + "\n" + first_track);
+        } catch (RuntimeException e) {
+            sharedService.setPublicString1("File : " + fileName + " Is not an accepted Json file\n");
+            return ResponseEntity.badRequest().body("Runtime exception occurred");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping
