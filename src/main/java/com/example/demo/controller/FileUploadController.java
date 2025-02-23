@@ -8,8 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/files")
@@ -24,21 +25,30 @@ public class FileUploadController {
         this.sharedService = sharedService;
     }
 
-
+    // Modified to handle multiple file uploads
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        String fileName = fileStorageService.storeFile(file);
-        sharedService.setPublicString1("File -" + fileName);
-        try{
-            sharedService.processFileUpload(file);
-            String first_track = sharedService.getSingleTrack(0).toString();
-            return ResponseEntity.ok("File uploaded successfully: " + fileName + "\n" + first_track);
-        } catch (RuntimeException e) {
-            sharedService.setPublicString1("File : " + fileName + " Is not an accepted Json file\n");
-            return ResponseEntity.badRequest().body("Runtime exception occurred");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<String> uploadFiles(@RequestParam("files") MultipartFile[] files) {
+        StringBuilder uploadedFilesNames = new StringBuilder();
+        boolean at_least_one_file_incorrect = false;
+        for (MultipartFile file : files) {
+            try {
+                String fileName = fileStorageService.storeFile(file);
+                uploadedFilesNames.append(fileName).append(", ");
+                sharedService.setPublicString1("File - " + fileName);
+                sharedService.processFileUpload(file);
+            } catch (RuntimeException e) {
+                sharedService.setPublicString1("File : " + file.getOriginalFilename() + " Is not an accepted Json file\n");
+                at_least_one_file_incorrect = true;
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Error with file: " + file.getOriginalFilename() + ". " + e.getMessage());
+            }
         }
+        if (at_least_one_file_incorrect) {
+            return ResponseEntity.badRequest().body("At least one file is not compatible");
+        } else {
+            return ResponseEntity.ok("Files uploaded successfully: " + uploadedFilesNames);
+        }
+
     }
 
     @GetMapping
@@ -61,9 +71,7 @@ public class FileUploadController {
     }
 
     @GetMapping("/previews")
-    public ResponseEntity<List<String>> getFilePreviews() {
+    public ResponseEntity<List<Map<String, String>>> getFilePreviews() {
         return ResponseEntity.ok(fileStorageService.getFilePreviews());
     }
-
-
 }

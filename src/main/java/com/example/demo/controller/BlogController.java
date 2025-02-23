@@ -1,12 +1,15 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.SharedService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
@@ -20,18 +23,22 @@ public class BlogController {
 
     @GetMapping("/blog")
     public String getBlogContent() {
-        String content = "Hello World, this var is set in BlogController.java\n";
-        return content + sharedService.getPublicString1();
+        String content = "Hello there, this is a blog that doesn't really say anything of note, it's just here as a " +
+                "place holder really.";
+        if (!Objects.equals(sharedService.getPublicString1(), "")) {
+            content += "The last file to be uploaded was: " + sharedService.getPublicString1();
+        }
+        return content;
     }
 
     @GetMapping("/blog/top10")
-    public String getTopTenSongs() {
+    public ResponseEntity<List<String>> getTopTenSongs() {
         List<Map.Entry<String, Integer>> top10 = SharedService.getTopEntries(10);
-        StringBuilder content = new StringBuilder();
-        for (Map.Entry<String, Integer> entry : top10) {
-            content.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n\n");
-        }
+        List<String> contents = new ArrayList<>();
 
-        return content.toString();
+        for (Map.Entry<String, Integer> entry : top10) {
+            contents.add(entry.getKey() + ": " + entry.getValue());
+        }
+        return ResponseEntity.ok(contents);
     }
 }
