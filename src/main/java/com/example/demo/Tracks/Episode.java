@@ -40,4 +40,9 @@ public class Episode extends Track {
     public String toString() {
         return "Episode{ts=" + time_stamp + ", ms_played=" + ms_played + ", show_name='" + show_name + "', episode_name='" + episode_name + "'}";
     }
+
+    @Override
+    public String getName(){
+        return episode_name;
+    }
 }

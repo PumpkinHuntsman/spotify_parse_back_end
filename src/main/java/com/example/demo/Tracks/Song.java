@@ -41,4 +41,9 @@ public class Song extends Track {
     public String toString() {
         return "Song{ts=" + time_stamp + ", ms_played=" + ms_played + ", artist_name='" + artist_name + "', song_name='" + song_name + "'}";
     }
+
+    @Override
+    public String getName() {
+        return song_name;
+    }
 }

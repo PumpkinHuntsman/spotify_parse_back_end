@@ -37,5 +37,7 @@ public abstract class Track {
         this.offline_time_stamp = offline_time_stamp;
     }
 
-
+    public String getName() {
+        return "NA";
+    }
 }
