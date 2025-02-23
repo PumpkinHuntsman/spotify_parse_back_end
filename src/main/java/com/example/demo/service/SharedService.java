@@ -20,7 +20,7 @@ public class SharedService {
     private String public_string_1 = "";
     private final List<Track> tracks = new ArrayList<>();
     private final ObjectMapper mapper = new ObjectMapper();
-    Map<String, Integer> songListenCount = new HashMap<>();
+    static Map<String, Integer> songListenCount = new HashMap<>();
 
     public String getPublicString1() {
         return public_string_1;
@@ -38,10 +38,6 @@ public class SharedService {
 
     public void addTrack(Track track) {
         this.tracks.add(track);
-    }
-
-    public Map<String, Integer> getSongListenCount() {
-        return songListenCount;
     }
 
     public void processFileUpload(MultipartFile file) throws Exception {
@@ -68,7 +64,12 @@ public class SharedService {
         }
     }
 
+    public Map<String, Integer> getSongListenCount() {
+        return songListenCount;
+    }
+
     public void countSongs() {
+        songListenCount = new HashMap<>();
         for (Track track : tracks) {
             if (track.getClass() == Song.class) {
                 if (songListenCount.containsKey(track.getName())) {
@@ -78,5 +79,12 @@ public class SharedService {
                 }
             }
         }
+    }
+
+    public static List<Map.Entry<String, Integer>> getTopEntries(int limit){
+        return songListenCount.entrySet().stream()
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .limit(limit)
+                .toList();
     }
 }
